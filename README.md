@@ -54,3 +54,27 @@ This folder contains the R code and the datasetsused for the 3D Horseshoe exampl
  - *Horseshoe_3D_Size_(design.size)_Embedded_IMSPE_Design_(#).txt:* The resultant design in the new coordinate system in the embedding space.
 
 4. ­**IMSPE_Comparison.R:** This part of the code reads the output of the previous ones, and produces the results of the simulation study of Section 4. Along the way different tables are printed to the screen: **Maximin.Eff** contains a detailed account of the relative efficiency of each of the maximin (geodesic and Euclidean distance) design with respect to the true parameters of the Gaussian process model, while **Ave.Maximin.Eff** contains the average relative efficiency of the two for each number of runs. Likewise, **IMSPE.all** contains a detailed account of the relative efficiency of each of the IMSPE­‐optimal design with respect to the true parameters of the Gaussian process model, while **Ave.Maximin.Eff** contains the average relative efficiency of the two for each number of runs.
+
+# Glacier
+
+This folder contains the R code and the datasets used for theglacier application appearing in Section 5 of the paper. If you wish to reproduce the results, we recommend that you run the different code steps in the order they appear. However, you should be warned that the entire process might require over a day, therefore we suggest that you save the different folders in the proposed file architecture, and run only parts 3 and 7 (maximin geodesic distance and IMSPE­‐optimal designs, respectively). Hereby is a short description of the different steps:
+
+1. **Glacier_Scaling.R:** Reads the original locations on the glacier from the file *Glacier_Interior_and_Boundary.txt* (in the */Auxiliary_Files directory*, first 247 rows define the glacier’s boundary), scales and centers them so that they are contained in the unit cube and writes the new locations into the *Glacier_Interior_and_Boundary_Scaled.txt* file in the same directory.
+
+2. **Pre_Optimization.R:** sources the functions file *Pre_Optimization_Functions.R*, performs Isomap on the glacier data (using a 2X10^­‐5 ball about each location to define its neighbors) and writes the following files into the */Auxiliary_Files* directory:
+
+ - *Glacier_Embeddings_4D.txt:* The original locations in their representation in the new coordinate system in the embedding space after MDS.
+ - *Glacier_Geodesic_Distances.txt:* The approximate geodesic distance matrix for the candidates.
+
+3. **Glacier_Maximin_Design.R:** Reads the set of scaled locations *Glacier_Interior_and_Boundary_Scaled.txt* and its respective list of embedded locations *Glacier_Embeddings_4D.txt* and chooses an optimal subset of size *design.size* using an exchange algorithm, based on the Maximin geodesic distance criterion. The results are written into the */Glacier_Maximin_Designs* directory, in the form of the following files:
+
+ - *Glacier_Size_(design.size)_Maximin_Design.txt:* The resultant design in the original coordinates.
+ - *Glacier_Size_(design.size)_Embedded_Maximin_Design.txt:* The resultant design in the new coordinate system in the embedding space.
+
+4. **Embedding_Integration_Pts.R:** Reads a set of 5922 locations on the glacier from the file *Glacier_Integration_Points.txt* in the */Auxiliary_Files* directory and uses the Nystrom approximation to embed those in the higher dimensional space, writing the output into *Embedded_Integration_Pts_Glacier_Scaled_all.txt* in the same directory.
+
+5. **Glacier_Uniform_Integration_Pts.R:** Reads *Embedded_Integration_Pts_Glacier_Scaled_all.txt* (written in the previous step) and selects a subset of uniformly spaced location for integration over the embedded region, using the maximin geodesic distance (more precisely, its approximation) criterion. The selected subset is written into the file *Glacier_Uniform_Integration_Pts.txt* in the */Auxiliary_Files* directory.
+
+6. ­**Embedding_Glacier_Data_2009.R:** Reads the 2009 glacier ablation data set (consisting of 14 observations) from the *Glacier_Data_2009.txt* file in the */Glacier_2009_Measurements* directory, scales it so that it is contained in the unit cube (in a way that is consistent with the scaling of the candidates points), uses Nystrom’s method to embed it in the 4­‐dimensional region and writes the embedded data set into the *Embedded_2009_Data_Glacier_Scaled.txt* file in the same directory.
+
+7. **Glacier_IMSPE_Optimal_Design.R:** Sources the functions file *IMSPE_Optimal_Design_Functions.R* and generates an IMSPE­‐optimal design of any size on the glacier, based on the geodesic distance. Uses the maximin geodesic distance design of the same size, generated in step 3 and the maximum likelihood estimators of the Gaussian process parameters, estimated from the 2009 data. The results are written into *Glacier_Size_(design.size)_Embedded_IMSPE_Design_2009.txt* and *Glacier_Size_(design.size)_IMSPE_Design_2009.txt* in the */Glacier_IMSPE_Optimal_Designs/2009_Designs* directory.

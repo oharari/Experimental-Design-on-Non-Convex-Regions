@@ -281,9 +281,10 @@ MaximinDesign = function(R, nd, dmat, nruns = 1, nn = TRUE, num.nn = 100,
                          return.grid = TRUE, return.transform = TRUE, 
                          max.loop = 20, verbose = FALSE){
   if(!is.null(start) && is.matrix(start)){
-    if(any(duplicated.array(start))){
+    if(any(duplicated.array(start))){ 
       stop("Error: start must not have duplicate rows")
     }
+    
     start = rowmatch(start, R)
     if(any(is.na(start))){
       stop("Error: Starting design must be a subset of R")
@@ -296,7 +297,6 @@ MaximinDesign = function(R, nd, dmat, nruns = 1, nn = TRUE, num.nn = 100,
   if(nd >= nrow(R)){
     stop(" number of design points >= the number of candidates")
   }
-  
   if(any(duplicated.array(R))){
     stop("Error: R must not have duplicate rows")
   }
@@ -306,10 +306,11 @@ MaximinDesign = function(R, nd, dmat, nruns = 1, nn = TRUE, num.nn = 100,
     warning("Number of nearst neighbors (nn) reduced to the actual number of candidates")
   }
   
-  if(is.null(DIST)) 
-    DIST = function(x, y) {
+  if(is.null(DIST)){
+    DIST = function(x, y){
       rdist(x, y)
     }
+  }
   
   id = 1:nrow(R)
   
@@ -329,12 +330,12 @@ MaximinDesign = function(R, nd, dmat, nruns = 1, nn = TRUE, num.nn = 100,
   saved.designs = matrix(NA, nrow = nruns, ncol = n)
   saved.hist = list(1:nruns)
   
-  if(verbose){
+  if (verbose){
     cat(dim(R), fill = TRUE)
   }
   
   for(RUNS in 1:nruns){
-    if(is.null(start)){
+    if (is.null(start)){
       if (!is.null(fixed)){
         Dset = sample((1:nrow(R))[-fixed], nd)
         Dset = c(Dset, fixed)
@@ -342,39 +343,42 @@ MaximinDesign = function(R, nd, dmat, nruns = 1, nn = TRUE, num.nn = 100,
         Dset = sample(1:nrow(R), nd)
       }
     } else{
-      if(length(start) > nd){
+      if(length(start) > nd){ 
         stop("Error: the start matrix must have nd rows")
       }
       
       Dset = start
+      
       if(!is.null(fixed)){
-        Dset  =  c(Dset, fixed)
+        Dset = c(Dset, fixed)
       }
     }
     
     design.original = R.orig[Dset, ]
     Dset.orginal = Dset
     Cset = id[-Dset]
-    dist.mat = dmat[Cset, Dset]
-    rs = dist.mat^P %*% rep(1, n)
+    dist.mat = dmat[Cset,Dset]
+    rs = dist.mat^P %*% c(rep(1, n))
     crit.i = crit.original = sum(rs^(Q/P))^(1/Q)
     CRIT = rep(NA, length(Cset))
     CRIT.temp = rep(NA, length(Cset))
     hist = matrix(c(0, 0, crit.i), ncol = 3, nrow = 1)
+    loop.counter = 1
     
-    loop.counter  =  1
     repeat{
       for(i in 1:nd){
-        Dset.i  =  matrix(R[Dset[i], ], nrow = 1)
-        if (verbose) {
+        Dset.i = matrix(R[Dset[i], ], nrow = 1)
+        if(verbose){
           cat("design point", i, Dset.i, fill = T)
         }
         
-        rs.without.i  =  rs - c(dmat[Dset[i], -Dset]^P)
+        partial.newrow = sum(dmat[Dset[i], Dset[-i]]^P)
+        rs.without.i = rs - c(dmat[Dset[i], -Dset]^P)
+        
         if(nn){
           vec = (1:length(Cset))[order(dist.mat[, i])[1:num.nn]]
-        } else{ 
-          vec  =  1:length(Cset)
+        } else{
+          vec = 1:length(Cset)
         }
         
         for(j in vec){
@@ -383,18 +387,20 @@ MaximinDesign = function(R, nd, dmat, nruns = 1, nn = TRUE, num.nn = 100,
           CRIT[j] = (sum((rs.without.i[-j] + newcol)^(Q/P)) + 
                        (dmat[Cset[j], Dset[i]]^P + partial.newrow)^(Q/P))^(1/Q)
           
-          if (verbose){
+          if(verbose){
             cat(j, " ")
           }
         }
         
         best = min(CRIT[!is.na(CRIT)])
-        best.spot = Cset[CRIT == best][!is.na(Cset[CRIT == best])][1]
-        if(verbose){
+        best.spot = Cset[CRIT == best][!is.na(Cset[CRIT == 
+                                                     best])][1]
+        if (verbose){
           cat(i, "best found ", best, " at", best.spot, fill = T)
         }
         
-        crit.old  =  crit.i
+        crit.old = crit.i
+        
         if(best < crit.i){
           if(verbose){
             cat(i, "best swapped ", fill = T)
@@ -409,22 +415,23 @@ MaximinDesign = function(R, nd, dmat, nruns = 1, nn = TRUE, num.nn = 100,
         }
       }
       
-      if((crit.i == crit.old) | (loop.counter >= max.loop)) 
+      if((crit.i == crit.old) | (loop.counter >= max.loop)){
         break
+      }
       
       loop.counter = loop.counter + 1
     }
     
-    saved.crit[RUNS]  =  crit.i
-    saved.designs[RUNS, ]  =  Dset
-    saved.hist[[RUNS]]  =  hist
+    saved.crit[RUNS] = crit.i
+    saved.designs[RUNS, ] = Dset
+    saved.hist[[RUNS]] = hist
   }
   
   ret = (1:nruns)[saved.crit == min(saved.crit)]
   
   if(length(ret) > 1){
     print("Greater than 1 optimal design; keeping first one......")
-    ret  =  ret[1]
+    ret = ret[1]
   }
   
   crit.i = saved.crit[ret]
@@ -435,19 +442,23 @@ MaximinDesign = function(R, nd, dmat, nruns = 1, nn = TRUE, num.nn = 100,
   dimnames(hist) = list(NULL, c("step", "swap.out", "swap.in", "new.crit"))
   out.des = R[saved.designs[ret, ], ]
   out.des = unscale(out.des, transform$x.center, transform$x.scale)
-  out  =  list(design = out.des, call = match.call(), 
-               best.id = c(saved.designs[ret,]), fixed = fixed, 
-               opt.crit = crit.i, start.design = design.original, 
-               start.crit = crit.original, history = hist, 
-               other.designs = saved.designs, other.crit = saved.crit, 
-               DIST = DIST, nn = nn, num.nn = num.nn, P = P, Q = Q, 
-               nhist = nhist - 1, nloop = (nloop - 1)/n)
+  out = list(design = out.des, call = match.call(), 
+             best.id = c(saved.designs[ret,]), fixed = fixed, 
+             opt.crit = crit.i, start.design = design.original, 
+             start.crit = crit.original, history = hist, 
+             other.designs = saved.designs, other.crit = saved.crit, 
+             DIST = DIST, nn = nn, num.nn = num.nn, P = P, Q = Q, 
+             nhist = nhist - 1, nloop = (nloop - 1)/n)
   
-  if(return.grid) 
-    out$grid  =  R.orig
-  if(return.transform) 
-    out$transform  =  transform
-  class(out)  =  "spatial.design"
+  if(return.grid){
+    out$grid = R.orig
+  }
+  
+  if(return.transform){
+    out$transform = transform
+  }
+  
+  class(out) = "spatial.design"
   
   return(out)
 }

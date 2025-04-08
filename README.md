@@ -1,5 +1,5 @@
 # Design of Experiments on Non-Convex Regions
-Code and dataset for our 2017 Technometrics [paper](https://drive.google.com/file/d/1UKfKGxTT_hBuesyVI3cJORo3OEzXwMxa/view?usp=drive_link) "Design and Analysis of Experiments on Non-Convex Regions". Each folder contains its own "ReadMe.pdf" file with explicit instrcuctions on running its own designated code.
+Code and dataset for our [2017 Technometrics paper](https://www.tandfonline.com/doi/10.1080/00401706.2015.1115674) (also available as a [preprint](https://drive.google.com/file/d/1UKfKGxTT_hBuesyVI3cJORo3OEzXwMxa/view?usp=drive_link) "Design and Analysis of Experiments on Non-Convex Regions". Each folder contains its own "ReadMe.pdf" file with explicit instrcuctions on running its own designated code.
 
 ## 2D Horseshoe
 This folder contains the R code and the datasetsused for the 2D Horseshoe example appearing in Sections 3 and 4 of the paper. If you wish to reproduce the simulation results, we recommend that you run the different code parts in the following order:
